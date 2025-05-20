@@ -70,6 +70,13 @@ docker run --gpus all --shm-size 1g -p 8080:80 \
 
 Server runs on `http://localhost:8080`.
 
+### ▶️ Run Benchmark
+
+```bash
+python3 benchmarks.py
+Edit NUM_REQUESTS in the script to control concurrency level (e.g., 20, 40, etc.)
+```
+
 ### 🧪 Load Testing (WIP)
 
 Use a load testing tool like [Locust](https://locust.io/), [wrk](https://github.com/wg/wrk), or custom Python scripts to simulate concurrent requests. Track:
@@ -83,44 +90,61 @@ Results to be documented soon.
 
 ---
 
-## 📁 Files
-
-| File             | Description                                                       |
-| ---------------- | ----------------------------------------------------------------- |
-| `vllm_single.py` | Benchmark script for single request via `vllm` API                |
-| `hf_single.py`   | Benchmark script for single request via Hugging Face Transformers |
-| `load_test/`     | (WIP) Scripts for simulating concurrent users                     |
-| `results/`       | Logs and structured benchmark results                             |
+The benchmark client is an async Python script using `httpx` and `asyncio` to simulate concurrent users.
 
 ---
 
-## 📊 Results Summary (so far)
+## 📊 Benchmark Results
 
-| Approach        | TTFT (sec) | Tokens/sec | Notes                                             |
-| --------------- | ---------- | ---------- | ------------------------------------------------- |
-| vLLM (single)   | 1.51       | 56.77      | Overhead from engine init, optimized for batching |
-| HF Transformers | 0.76       | 108.17     | Faster for isolated requests                      |
-| vLLM (serve)    | TBD        | TBD        | Expected gains with concurrent users              |
-| HF TGI          | TBD        | TBD        | Lightweight + performant                          |
+### ✅ 20 Concurrent Users
 
----
+| Framework | Avg TTFT (sec) | Total Time (sec) | Tokens/sec |
+|-----------|----------------|-------------------|-------------|
+| vLLM      | 0.6134         | 0.6712            | 1986.03     |
+| HF TGI    | 1.3478         | 1.5441            | 838.67     |
 
-## ✅ Goals
-
-* [x] Set up vLLM and HF pipelines
-* [x] Compare single-request latency
-* [ ] Simulate and benchmark concurrent users
-* [ ] Track GPU memory and token throughput
-* [ ] Explore speculative decoding (future work)
+> ⚠️ HF TGI initially returned empty outputs due to misconfigured payload (missing `"inputs"` key). This was later fixed in the 40-user test.
 
 ---
 
-## 🧠 Insights (preliminary)
+### ✅ 40 Concurrent Users
 
-* **vLLM** is well-suited for concurrent and batched inference scenarios.
-* **HF** is lightweight for simple, single-turn use cases but may not scale as efficiently for multi-user inference.
+| Framework | Avg TTFT (sec) | Total Time (sec) | Tokens/sec |
+|-----------|----------------|-------------------|-------------|
+| vLLM      | 0.6161         | 0.6963            | 3606.27     |
+| HF TGI    | 1.9238         | 2.2310            |  1244.75    |
 
 ---
+
+## 📈 Observations
+
+- **vLLM** consistently delivers **much lower latency and higher throughput**, thanks to:
+  - PagedAttention and token scheduling
+  - Efficient batching under concurrency
+
+- **HF TGI** is:
+  - More stable for general-purpose use
+  - But shows higher latency under load
+  - Returned empty completions until the correct input format was used:
+    ```json
+    {
+      "inputs": "...",
+      "parameters": {
+        "max_new_tokens": 100,
+        "temperature": 0.7,
+        "do_sample": true
+      }
+    }
+    ```
+
+- **Output Quality**:
+  - Both systems generate odd or nonsensical outputs at times — expected from small models like `opt-125m`
+  - Tuning parameters like `temperature`, `top_p`, and `repetition_penalty` helps improve generation diversity
+
+---
+
+
+
 
 ## 📜 License
 
