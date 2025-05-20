@@ -98,10 +98,10 @@ The benchmark client is an async Python script using `httpx` and `asyncio` to si
 
 ### ✅ 20 Concurrent Users
 
-| Framework | Avg TTFT (sec) | Total Time (sec) | Tokens/sec |
-|-----------|----------------|-------------------|-------------|
-| vLLM      | 0.6134         | 0.6712            | 1986.03     |
-| HF TGI    | 1.3478         | 1.5441            | 838.67     |
+| Framework | Total Time (sec) | Tokens/sec |
+|-----------|-------------------|-------------|
+| vLLM      | 0.6712            | 1986.03     |
+| HF TGI    | 1.5441            | 838.67     |
 
 > ⚠️ HF TGI initially returned empty outputs due to misconfigured payload (missing `"inputs"` key). This was later fixed in the 40-user test.
 
@@ -109,10 +109,10 @@ The benchmark client is an async Python script using `httpx` and `asyncio` to si
 
 ### ✅ 40 Concurrent Users
 
-| Framework | Avg TTFT (sec) | Total Time (sec) | Tokens/sec |
-|-----------|----------------|-------------------|-------------|
-| vLLM      | 0.6161         | 0.6963            | 3606.27     |
-| HF TGI    | 1.9238         | 2.2310            |  1244.75    |
+| Framework | Total Time (sec) | Tokens/sec |
+|-----------|-------------------|-------------|
+| vLLM      | 0.6963            | 3606.27     |
+| HF TGI    | 2.2310            |  1244.75    |
 
 ---
 
