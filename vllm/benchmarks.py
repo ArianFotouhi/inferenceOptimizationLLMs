@@ -30,9 +30,7 @@ async def send_request(client, url, payload, is_vllm, request_id, framework):
     except Exception as e:
         print(f"\n❌ [{framework} #{request_id}] Request failed: {e}")
         print("Response text:", getattr(response, "text", "N/A"))
-        return 0, 0, 0
-
-    ttft = time.time()
+        return 0, 0
 
     # Extract prompt and text
     if is_vllm:
@@ -49,7 +47,7 @@ async def send_request(client, url, payload, is_vllm, request_id, framework):
     print(f"Prompt: {repr(prompt)}")
     print(f"Response: {repr(text)}")
 
-    return ttft - start, end - start, len(text.split())
+    return end - start, len(text.split())
 
 async def benchmark(api_name, url, payload, is_vllm):
     await wait_for_server(8000 if is_vllm else 8080, api_name)
@@ -62,11 +60,10 @@ async def benchmark(api_name, url, payload, is_vllm):
         results = await asyncio.gather(*tasks)
         end = time.time()
 
-    ttfts, latencies, token_counts = zip(*results)
+    latencies, token_counts = zip(*results)
     total_tokens = sum(token_counts)
 
     print(f"\n=== {api_name.upper()} Benchmark ===")
-    print(f"Avg TTFT: {sum(ttfts)/NUM_REQUESTS:.4f} sec")
     print(f"Avg Latency: {sum(latencies)/NUM_REQUESTS:.4f} sec")
     print(f"Total Time: {end - start:.4f} sec")
     print(f"Tokens/sec: {total_tokens / (end - start):.2f}")
