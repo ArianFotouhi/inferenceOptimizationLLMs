@@ -4,22 +4,23 @@ import time
 import socket
 import random
 
+# Configuration
 URL = "http://localhost:5000/v1/completions"
 MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 MAX_TOKENS = 80
 
-# Prompts for completion-style model
-TEST_PROMPTS = [
-    "San Francisco is a",
-    "Artificial intelligence can be defined as",
-    "The theory of relativity explains that",
-    "A healthy diet consists of",
-    "During World War II,",
-    "Photosynthesis is the process where",
-    "The future of technology includes",
-    "A cat typically spends its day",
-    "The Amazon rainforest is known for",
-    "A successful entrepreneur is someone who"
+# Reused test questions (as prompts for completions)
+TEST_QUESTIONS = [
+    "What is quantum computing in simple terms?",
+    "Explain the water cycle briefly.",
+    "How does the stock market work?",
+    "What's the difference between AI and machine learning?",
+    "Tell me a fun fact about space.",
+    "How can I improve my sleep quality?",
+    "What causes rainbows?",
+    "Why do cats purr?",
+    "What is the capital of Japan?",
+    "Describe photosynthesis in one sentence."
 ]
 
 def is_port_open(host, port):
@@ -39,7 +40,7 @@ async def wait_for_server(url, name="LLM"):
     raise RuntimeError(f"{name} server at {url} failed to respond.")
 
 async def send_completion_request(client, url, request_id):
-    prompt = random.choice(TEST_PROMPTS)
+    prompt = random.choice(TEST_QUESTIONS)
     payload = {
         "model": MODEL_NAME,
         "prompt": prompt,
