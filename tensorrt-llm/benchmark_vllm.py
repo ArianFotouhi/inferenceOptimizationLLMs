@@ -5,11 +5,11 @@ import socket
 import random
 
 # Configuration
-URL = "http://localhost:5000/v1/completions"
+URL = "http://localhost:5000/v1/chat/completions"
 MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 MAX_TOKENS = 80
 
-# Reused test questions (as prompts for completions)
+# Shared test questions
 TEST_QUESTIONS = [
     "What is quantum computing in simple terms?",
     "Explain the water cycle briefly.",
@@ -39,11 +39,14 @@ async def wait_for_server(url, name="LLM"):
         await asyncio.sleep(1)
     raise RuntimeError(f"{name} server at {url} failed to respond.")
 
-async def send_completion_request(client, url, request_id):
-    prompt = random.choice(TEST_QUESTIONS)
+async def send_chat_request(client, url, request_id):
+    question = random.choice(TEST_QUESTIONS)
     payload = {
         "model": MODEL_NAME,
-        "prompt": prompt,
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": question}
+        ],
         "max_tokens": MAX_TOKENS,
         "temperature": 0.7
     }
@@ -53,7 +56,7 @@ async def send_completion_request(client, url, request_id):
         response = await client.post(url, json=payload)
         response.raise_for_status()
         data = response.json()
-        text = data["choices"][0]["text"]
+        text = data["choices"][0]["message"]["content"]
     except Exception as e:
         print(f"\n❌ [Request #{request_id}] Failed: {e}")
         print("Response:", getattr(response, "text", "N/A"))
@@ -62,7 +65,7 @@ async def send_completion_request(client, url, request_id):
     end = time.time()
 
     print(f"\n[Request #{request_id}]")
-    print(f"Prompt: {prompt}")
+    print(f"Prompt: {question}")
     print(f"Response: {text.strip()}")
 
     return end - start, len(text.split())
@@ -71,7 +74,7 @@ async def benchmark_concurrency(url, concurrency_level):
     await wait_for_server(url)
     async with httpx.AsyncClient(timeout=60) as client:
         tasks = [
-            send_completion_request(client, url, i + 1)
+            send_chat_request(client, url, i + 1)
             for i in range(concurrency_level)
         ]
         print(f"\n🚀 Running benchmark with {concurrency_level} concurrent requests...")
@@ -90,7 +93,7 @@ async def benchmark_concurrency(url, concurrency_level):
     print(f"Tokens/sec: {total_tokens / (end - start):.2f}")
 
 async def main():
-    concurrency_levels = [20, 50, 80]  # Adjust as needed
+    concurrency_levels = [20, 50, 80]
     for level in concurrency_levels:
         await benchmark_concurrency(URL, level)
 
