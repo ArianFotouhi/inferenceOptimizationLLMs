@@ -57,6 +57,7 @@ Make sure each corresponding server is already running and listening on the corr
 At higher concurrency (80 users), both vLLM and TensorRT-LLM deliver similar throughput (~2540 tokens/sec), with vLLM slightly faster in latency.
 vLLM outperforms TensorRT-LLM at lower concurrency (20 users) in both latency and token generation speed.
 Overall, vLLM demonstrates more consistent scalability across different user loads.
+
 ---
 
 ## 🔧 Requirements
@@ -70,13 +71,4 @@ Install them with:
 pip install httpx
 ```
 
----
-
-## 📬 Contact
-
-Feel free to open issues or submit PRs for improvements or support for other models/backends.
-
-```
-
----
 
