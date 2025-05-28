@@ -12,11 +12,8 @@ The standard approach for serving models using the transformers library, often p
 
 
 ## 🔍 Objective
-Benchmark and analyze the performance of both vLLM and Hugging Face-based serving pipelines on:
+Benchmark and analyze the performance of LLMs under these serving solutions
 
-Single request latency
-
-Throughput under concurrent loads
 
 ## 📦 Environment
 Models:
