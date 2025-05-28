@@ -1,13 +1,13 @@
 # LLM Inference Optimization Benchmarks
 This repository explores the performance optimization of large language model (LLM) inference by comparing three prominent approaches:
 
-## vLLM
+### vLLM
 An inference engine optimized for high throughput and low latency, leveraging techniques like continuous batching, paged attention, and FlashAttention.
 
-## TensorRT-LLM
+### TensorRT-LLM
 NVIDIA’s high-performance inference library designed for LLMs. It uses TensorRT and CUDA for aggressive graph optimization, kernel fusion, and GPU utilization to accelerate model execution, especially on NVIDIA hardware.
 
-## Hugging Face Transformers
+### Hugging Face Transformers
 The standard approach for serving models using the transformers library, often paired with Hugging Face's Text Generation Inference (TGI) server for production deployment.
 
 
